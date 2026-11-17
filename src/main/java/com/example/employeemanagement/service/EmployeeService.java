@@ -28,6 +28,23 @@ public class EmployeeService {
         return employees.findAll();
     }
 
+    public List<Employee> search(String name, String department) {
+        boolean hasName = name != null && !name.isBlank();
+        boolean hasDepartment = department != null && !department.isBlank();
+
+        if (hasName && hasDepartment) {
+            return employees.findByNameContainingIgnoreCaseAndDepartment_NameIgnoreCase(
+                    name.strip(), department.strip());
+        }
+        if (hasName) {
+            return employees.findByNameContainingIgnoreCase(name.strip());
+        }
+        if (hasDepartment) {
+            return employees.findByDepartment_NameIgnoreCase(department.strip());
+        }
+        return findAll();
+    }
+
     public Optional<Employee> findById(long id) {
         return employees.findById(id);
     }

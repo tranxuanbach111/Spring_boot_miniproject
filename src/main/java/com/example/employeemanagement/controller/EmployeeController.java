@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -29,8 +30,10 @@ public class EmployeeController {
     }
 
     @GetMapping
-    public List<EmployeeResponse> findAll() {
-        return employeeService.findAll().stream().map(EmployeeController::toResponse).toList();
+    public List<EmployeeResponse> findAll(
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "department", required = false) String department) {
+        return employeeService.search(name, department).stream().map(EmployeeController::toResponse).toList();
     }
 
     @GetMapping("/{id}")

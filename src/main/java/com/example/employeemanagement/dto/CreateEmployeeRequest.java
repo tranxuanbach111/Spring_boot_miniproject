@@ -7,14 +7,14 @@ import jakarta.validation.constraints.Size;
 
 public class CreateEmployeeRequest {
 
-    @NotBlank
+    @NotBlank(message = "Name is required.")
     @Size(max = 100)
     private String name;
-    @NotBlank
-    @Email
+    @NotBlank(message = "Email is required.")
+    @Email(message = "Email must be valid.")
     @Size(max = 254)
     private String email;
-    @Positive
+    @Positive(message = "Department ID must be positive.")
     private long departmentId;
 
     public String getName() {

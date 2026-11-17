@@ -67,9 +67,9 @@ public class EmployeeService {
         employees.delete(getEmployee(id));
     }
 
-    private Employee getEmployee(long id) {
-        return employees.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    public Employee getEmployee(long id) {
+        return findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee " + id + " was not found."));
     }
 
     private Department findDepartment(long id) {

@@ -4,12 +4,14 @@ public class EmployeeResponse {
 
     private final long id;
     private final String name;
-    private final String department;
+    private final String email;
+    private final long departmentId;
 
-    public EmployeeResponse(long id, String name, String department) {
+    public EmployeeResponse(long id, String name, String email, long departmentId) {
         this.id = id;
         this.name = name;
-        this.department = department;
+        this.email = email;
+        this.departmentId = departmentId;
     }
 
     public long getId() {
@@ -20,7 +22,11 @@ public class EmployeeResponse {
         return name;
     }
 
-    public String getDepartment() {
-        return department;
+    public String getEmail() {
+        return email;
+    }
+
+    public long getDepartmentId() {
+        return departmentId;
     }
 }

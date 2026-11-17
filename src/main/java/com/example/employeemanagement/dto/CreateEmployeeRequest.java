@@ -1,9 +1,21 @@
 package com.example.employeemanagement.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+
 public class CreateEmployeeRequest {
 
+    @NotBlank
+    @Size(max = 100)
     private String name;
-    private String department;
+    @NotBlank
+    @Email
+    @Size(max = 254)
+    private String email;
+    @Positive
+    private long departmentId;
 
     public String getName() {
         return name;
@@ -13,11 +25,19 @@ public class CreateEmployeeRequest {
         this.name = name;
     }
 
-    public String getDepartment() {
-        return department;
+    public String getEmail() {
+        return email;
     }
 
-    public void setDepartment(String department) {
-        this.department = department;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public long getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(long departmentId) {
+        this.departmentId = departmentId;
     }
 }

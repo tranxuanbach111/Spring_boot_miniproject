@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Danh sách nhân viên</title>
+</head>
+<body>
+<main>
+    <h1>Danh sách nhân viên</h1>
+    <table>
+        <thead>
+        <tr><th>ID</th><th>Họ tên</th><th>Email</th><th>Phòng ban</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="employee : ${employees}">
+            <td th:text="${employee.id}"></td>
+            <td th:text="${employee.name}"></td>
+            <td th:text="${employee.email}"></td>
+            <td th:text="${employee.department.name}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(employees)}">
+            <td colspan="4">Chưa có nhân viên.</td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

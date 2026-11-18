@@ -27,9 +27,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest(properties = {
-        "DB_URL=jdbc:h2:mem:employee_test;DB_CLOSE_DELAY=-1",
-        "DB_USERNAME=sa",
-        "DB_PASSWORD=",
+        "spring.datasource.url=jdbc:h2:mem:employee_test;DB_CLOSE_DELAY=-1",
+        "spring.datasource.username=sa",
+        "spring.datasource.password=",
         "spring.jpa.hibernate.ddl-auto=create-drop"
 })
 class EmployeeManagementApplicationTests {

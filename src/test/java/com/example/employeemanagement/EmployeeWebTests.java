@@ -19,9 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(properties = {
-        "DB_URL=jdbc:h2:mem:employee_web_test;DB_CLOSE_DELAY=-1",
-        "DB_USERNAME=sa",
-        "DB_PASSWORD=",
+        "spring.datasource.url=jdbc:h2:mem:employee_web_test;DB_CLOSE_DELAY=-1",
+        "spring.datasource.username=sa",
+        "spring.datasource.password=",
         "spring.jpa.hibernate.ddl-auto=create-drop"
 })
 @Transactional

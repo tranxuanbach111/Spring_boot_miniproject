@@ -12,9 +12,9 @@ public class DatabaseConfig {
 
     @Bean
     public DataSource dataSource(
-            @Value("${DB_URL}") String url,
-            @Value("${DB_USERNAME}") String username,
-            @Value("${DB_PASSWORD}") String password) {
+            @Value("${spring.datasource.url}") String url,
+            @Value("${spring.datasource.username}") String username,
+            @Value("${spring.datasource.password}") String password) {
         HikariDataSource dataSource = new HikariDataSource();
         dataSource.setJdbcUrl(url);
         dataSource.setUsername(username);

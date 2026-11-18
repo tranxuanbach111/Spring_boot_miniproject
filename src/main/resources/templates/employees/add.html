@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Thêm nhân viên</title>
+</head>
+<body>
+<main>
+    <h1>Thêm nhân viên</h1>
+    <form method="post" th:action="@{/employees/add}" th:object="${employee}">
+        <p>
+            <label for="name">Họ tên</label>
+            <input id="name" type="text" th:field="*{name}" maxlength="100" required>
+            <span th:errors="*{name}"></span>
+        </p>
+        <p>
+            <label for="email">Email</label>
+            <input id="email" type="email" th:field="*{email}" maxlength="254" required>
+            <span th:errors="*{email}"></span>
+        </p>
+        <p>
+            <label for="departmentId">Phòng ban</label>
+            <select id="departmentId" th:field="*{departmentId}" required>
+                <option value="0">Chọn phòng ban</option>
+                <option th:each="department : ${departments}"
+                        th:value="${department.id}" th:text="${department.name}"></option>
+            </select>
+            <span th:errors="*{departmentId}"></span>
+        </p>
+        <p th:if="${#lists.isEmpty(departments)}">Hãy tạo phòng ban trong cơ sở dữ liệu trước khi thêm nhân viên.</p>
+        <button type="submit">Lưu nhân viên</button>
+        <a th:href="@{/employees/list}">Quay lại danh sách</a>
+    </form>
+</main>
+</body>
+</html>

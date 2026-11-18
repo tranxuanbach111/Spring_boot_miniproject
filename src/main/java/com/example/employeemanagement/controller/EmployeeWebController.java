@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 @Controller
@@ -35,8 +36,12 @@ public class EmployeeWebController {
     }
 
     @GetMapping("/list")
-    public String list(Model model) {
-        model.addAttribute("employees", employees.findAll());
+    public String list(@RequestParam(name = "name", required = false) String name,
+                       @RequestParam(name = "department", required = false) String department,
+                       Model model) {
+        model.addAttribute("name", name);
+        model.addAttribute("department", department);
+        model.addAttribute("employees", employees.search(name, department));
         return "employees/list";
     }
 

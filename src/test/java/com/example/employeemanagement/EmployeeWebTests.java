@@ -79,4 +79,20 @@ class EmployeeWebTests {
                 .andExpect(model().attributeHasFieldErrors("employee", "departmentId"));
         assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM employee", Integer.class));
     }
+
+    @Test
+    void searchRendersOnlyMatchingEmployees() throws Exception {
+        jdbc.update("INSERT INTO department (id, name) VALUES (?, ?)", 101L, "HR");
+        jdbc.update("INSERT INTO employee (name, email, department_id) VALUES (?, ?, ?), (?, ?, ?)",
+                "Nguyen An", "an@example.com", 100L, "Nguyen Binh", "binh@example.com", 101L);
+        mvc.perform(get("/employees/list").param("name", "nguyen").param("department", "IT"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("an@example.com")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(
+                        org.hamcrest.Matchers.containsString("binh@example.com"))));
+        mvc.perform(get("/employees/list").param("name", "missing"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Không có nhân viên phù hợp.")));
+    }
+
 }

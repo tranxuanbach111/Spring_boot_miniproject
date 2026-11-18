@@ -14,6 +14,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.caffeine.CaffeineCache;
+import java.time.Duration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +36,9 @@ class EmployeeWebTests {
 
     @Autowired
     private JdbcTemplate jdbc;
+
+    @Autowired
+    private CacheManager cacheManager;
 
     private MockMvc mvc;
 
@@ -105,6 +111,32 @@ class EmployeeWebTests {
         mvc.perform(get("/actuator/metrics"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.names").isArray());
+    }
+
+
+    @Test
+    void employeeCountIsCachedUntilExpiry() throws Exception {
+        CaffeineCache cache = (CaffeineCache) cacheManager.getCache("employeeCount");
+        var expiry = cache.getNativeCache().policy().expireAfterWrite().orElseThrow();
+        assertEquals(Duration.ofMinutes(1), expiry.getExpiresAfter());
+        cache.clear();
+        try {
+            mvc.perform(get("/api/employees/count"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.totalEmployees").value(0));
+            jdbc.update("INSERT INTO employee (name, email, department_id) VALUES (?, ?, ?)",
+                    "Cached Employee", "cache@example.com", 100L);
+            mvc.perform(get("/api/employees/count"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.totalEmployees").value(0));
+            expiry.setExpiresAfter(Duration.ZERO);
+            mvc.perform(get("/api/employees/count"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.totalEmployees").value(1));
+        } finally {
+            expiry.setExpiresAfter(Duration.ofMinutes(1));
+            cache.clear();
+        }
     }
 
 }

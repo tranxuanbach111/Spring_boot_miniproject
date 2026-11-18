@@ -8,6 +8,8 @@ import com.example.employeemanagement.model.Department;
 import com.example.employeemanagement.model.Employee;
 import com.example.employeemanagement.repository.DepartmentRepository;
 import com.example.employeemanagement.repository.EmployeeRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class EmployeeService {
+
+    private static final Logger log = LoggerFactory.getLogger(EmployeeService.class);
 
     private final EmployeeRepository employees;
     private final DepartmentRepository departments;
@@ -52,6 +56,7 @@ public class EmployeeService {
     @Transactional
     public Employee create(CreateEmployeeRequest request) {
         Department department = findDepartment(request.getDepartmentId());
+        log.info("Creating employee in department id={}", department.getId());
         return employees.save(new Employee(request.getName(), request.getEmail(), department));
     }
 
@@ -59,12 +64,15 @@ public class EmployeeService {
     public Employee update(long id, CreateEmployeeRequest request) {
         Employee employee = getEmployee(id);
         employee.update(request.getName(), request.getEmail(), findDepartment(request.getDepartmentId()));
+        log.info("Updating employee id={}", id);
         return employee;
     }
 
     @Transactional
     public void delete(long id) {
-        employees.delete(getEmployee(id));
+        Employee employee = getEmployee(id);
+        log.info("Deleting employee id={}", id);
+        employees.delete(employee);
     }
 
     public Employee getEmployee(long id) {

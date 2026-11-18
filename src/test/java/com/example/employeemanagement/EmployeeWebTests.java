@@ -1,6 +1,7 @@
 package com.example.employeemanagement;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -17,6 +18,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCache;
 import java.time.Duration;
+import org.springframework.scheduling.config.ScheduledTaskHolder;
+import org.springframework.scheduling.config.FixedRateTask;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +42,9 @@ class EmployeeWebTests {
 
     @Autowired
     private CacheManager cacheManager;
+
+    @Autowired
+    private ScheduledTaskHolder scheduledTasks;
 
     private MockMvc mvc;
 
@@ -137,6 +143,16 @@ class EmployeeWebTests {
             expiry.setExpiresAfter(Duration.ofMinutes(1));
             cache.clear();
         }
+    }
+
+
+    @Test
+    void systemStatusTaskIsScheduledEveryThirtySeconds() {
+        assertTrue(scheduledTasks.getScheduledTasks().stream()
+                .map(scheduledTask -> scheduledTask.getTask())
+                .filter(task -> task.getRunnable().toString().contains("SystemStatusTask.logStatus"))
+                .anyMatch(task -> task instanceof FixedRateTask
+                        && ((FixedRateTask) task).getIntervalDuration().equals(Duration.ofSeconds(30))));
     }
 
 }

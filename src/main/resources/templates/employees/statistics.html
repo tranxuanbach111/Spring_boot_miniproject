@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Thống kê nhân viên</title>
+</head>
+<body>
+<main>
+    <h1>Thống kê nhân viên</h1>
+    <p>Tổng số nhân viên: <strong th:text="${statistics.totalEmployees}">0</strong></p>
+    <table>
+        <caption>Số lượng nhân viên theo phòng ban</caption>
+        <thead>
+        <tr><th scope="col">ID phòng ban</th><th scope="col">Phòng ban</th><th scope="col">Số nhân viên</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="department : ${statistics.departments}">
+            <td th:text="${department.departmentId}"></td>
+            <td th:text="${department.departmentName}"></td>
+            <td th:text="${department.employeeCount}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(statistics.departments)}">
+            <td colspan="3">Chưa có phòng ban.</td>
+        </tr>
+        </tbody>
+    </table>
+    <p><a th:href="@{/employees/list}">Danh sách nhân viên</a></p>
+</main>
+</body>
+</html>

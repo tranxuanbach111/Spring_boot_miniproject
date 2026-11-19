@@ -14,6 +14,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.hamcrest.Matchers.containsString;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -103,6 +107,32 @@ class EmployeeStatisticsTests {
     @Test
     void anonymousCannotReadStatisticsApi() throws Exception {
         mvc.perform(get("/api/employees/statistics")).andExpect(status().isUnauthorized());
+    }
+
+
+    @Test
+    void userAndAdminCanViewStatisticsPage() throws Exception {
+        seedEmployees();
+        for (String role : new String[] {"USER", "ADMIN"}) {
+            mvc.perform(get("/employees/statistics").with(user("reporter").roles(role)))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("employees/statistics"))
+                    .andExpect(model().attributeExists("statistics"))
+                    .andExpect(content().contentTypeCompatibleWith("text/html"))
+                    .andExpect(content().string(containsString("<strong>3</strong>")))
+                    .andExpect(content().string(containsString("HR")))
+                    .andExpect(content().string(containsString("IT")))
+                    .andExpect(content().string(containsString("<td>0</td>")));
+        }
+    }
+
+    @Test
+    void emptyPageShowsZeroAndAnonymousIsRejected() throws Exception {
+        mvc.perform(get("/employees/statistics")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/employees/statistics").with(user("reader").roles("USER")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("<strong>0</strong>")))
+                .andExpect(content().string(containsString("Chưa có phòng ban.")));
     }
 
 }

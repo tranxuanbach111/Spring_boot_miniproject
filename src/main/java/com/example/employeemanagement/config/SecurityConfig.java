@@ -90,7 +90,7 @@ public class SecurityConfig {
     private void authorize(
             AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry rules) {
         rules.requestMatchers("/api/auth/me").authenticated()
-                .requestMatchers(HttpMethod.GET, "/api/employees", "/api/employees/**", "/employees/list")
+                .requestMatchers(HttpMethod.GET, "/api/employees", "/api/employees/**", "/employees/list", "/employees/statistics")
                 .hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/api/employees", "/api/employees/**", "/employees/**")
                 .hasRole("ADMIN")

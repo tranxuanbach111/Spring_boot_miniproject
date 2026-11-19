@@ -4,6 +4,8 @@ import java.security.Principal;
 import java.util.Map;
 
 import com.example.employeemanagement.dto.RegisterRequest;
+import com.example.employeemanagement.dto.LoginRequest;
+import com.example.employeemanagement.service.JwtTokenService;
 import com.example.employeemanagement.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -21,8 +23,11 @@ public class AuthController {
 
     private final AuthService auth;
 
-    public AuthController(AuthService auth) {
+    private final JwtTokenService tokens;
+
+    public AuthController(AuthService auth, JwtTokenService tokens) {
         this.auth = auth;
+        this.tokens = tokens;
     }
 
     @GetMapping("/csrf")
@@ -39,5 +44,10 @@ public class AuthController {
     @GetMapping("/me")
     public Map<String, String> me(Principal principal) {
         return Map.of("username", principal.getName());
+    }
+
+    @PostMapping("/token")
+    public Map<String, Object> token(@Valid @RequestBody LoginRequest request) {
+        return tokens.login(request);
     }
 }

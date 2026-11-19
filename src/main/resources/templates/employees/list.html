@@ -8,6 +8,7 @@
 <body>
 <main>
     <h1>Danh sách nhân viên</h1>
+    <p><a th:href="@{/employees/statistics}">Thống kê nhân viên</a></p>
     <p><a th:href="@{/employees/add}">Thêm nhân viên</a></p>
     <form method="get" th:action="@{/employees/list}">
         <label for="name">Họ tên</label>

@@ -4,6 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.example.employeemanagement.repository.DepartmentRepository;
+import com.example.employeemanagement.service.EmployeeReportService;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.junit.jupiter.api.BeforeEach;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +36,19 @@ class EmployeeStatisticsTests {
     @Autowired
     private JdbcTemplate jdbc;
 
+    @Autowired
+    private EmployeeReportService reports;
+
+    @Autowired
+    private WebApplicationContext context;
+
+    private MockMvc mvc;
+
+    @BeforeEach
+    void setUp() {
+        mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+    }
+
     @Test
     void countsByDepartmentIncludingEmptyAndDuplicateNames() {
         seedEmployees();
@@ -42,6 +65,7 @@ class EmployeeStatisticsTests {
     @Test
     void emptyDatabaseReturnsEmptyStatistics() {
         assertTrue(departments.countEmployeesByDepartment().isEmpty());
+        assertEquals(0, reports.statistics().getTotalEmployees());
     }
 
     private void seedEmployees() {
@@ -53,4 +77,32 @@ class EmployeeStatisticsTests {
                        ('Chi', 'chi@example.com', 3)
                 """);
     }
+
+    @Test
+    void statisticsTotalMatchesDepartmentCounts() {
+        seedEmployees();
+        var statistics = reports.statistics();
+        assertEquals(3, statistics.getTotalEmployees());
+        jdbc.update("DELETE FROM employee WHERE department_id = 3");
+        assertEquals(2, reports.statistics().getTotalEmployees());
+    }
+
+    @Test
+    void userAndAdminCanReadStatisticsApi() throws Exception {
+        seedEmployees();
+        for (String role : new String[] {"USER", "ADMIN"}) {
+            mvc.perform(get("/api/employees/statistics").with(user("reporter").roles(role)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.totalEmployees").value(3))
+                    .andExpect(jsonPath("$.departments.length()").value(3))
+                    .andExpect(jsonPath("$.departments[0].departmentName").value("HR"))
+                    .andExpect(jsonPath("$.departments[0].employeeCount").value(0));
+        }
+    }
+
+    @Test
+    void anonymousCannotReadStatisticsApi() throws Exception {
+        mvc.perform(get("/api/employees/statistics")).andExpect(status().isUnauthorized());
+    }
+
 }
